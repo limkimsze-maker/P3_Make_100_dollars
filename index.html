@@ -686,7 +686,7 @@
       flex-wrap:wrap;
       background:linear-gradient(180deg, #fff, rgba(2,6,23,.015));
     }
-  
+
     /* ====== Game add-on (HUD + shop item art) ====== */
     .itemHero{
       display:flex;
@@ -713,9 +713,41 @@
     .itemText{min-width:0}
     .itemTitle{font-weight:1000; font-size:16px; line-height:1.15;}
     .itemSub{font-weight:900; font-size:12px; color:var(--muted); margin-top:2px;}
-    
 
     .pill#bgmBtn.off{opacity:.75}
+
+    /* ===== Finish Prompt Modal ===== */
+    #finishPrompt{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(2,6,23,.55);
+      z-index:9999;
+      padding:16px;
+    }
+    #finishPrompt .fpCard{
+      width:min(520px, 100%);
+      background:#fff;
+      border:1px solid rgba(15,23,42,.16);
+      border-radius:18px;
+      box-shadow:0 18px 48px rgba(2,6,23,.28);
+      padding:14px;
+    }
+    #finishPrompt .fpTitle{
+      font-weight:1000;
+      font-size:15px;
+      line-height:1.3;
+    }
+    #finishPrompt .fpBtns{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      margin-top:12px;
+    }
+    #finishPrompt .fpBtns .btn{ flex:0 0 auto; }
 
 </style>
 </head>
@@ -730,13 +762,11 @@
         <div class="subtitle">Coins → Make a dollar • Count on to tens • Count on to $100</div>
       </div>
       <div class="pillrow">
-        
-        
         <div class="pill" id="bgmBtn" role="button" tabindex="0" title="Background music" style="cursor:pointer">🎵 Music: On</div>
-<div class="pill" title="Time Challenge"><span class="dot warn" id="dotT"></span>⏱ <span id="timerText">00:00</span></div>
+        <div class="pill" title="Time Challenge"><span class="dot warn" id="dotT"></span>⏱ <span id="timerText">00:00</span></div>
         <div class="pill" title="Speed Streak"><span class="dot warn" id="dotS"></span>🔥 <span id="streakText">0</span></div>
         <div class="pill" title="Target time"><span class="dot warn" id="dotL"></span>Target: 02:00</div>
-<div class="pill"><span class="dot warn" id="dot1"></span>Coins</div>
+        <div class="pill"><span class="dot warn" id="dot1"></span>Coins</div>
         <div class="pill"><span class="dot warn" id="dot2"></span>To tens</div>
         <div class="pill"><span class="dot warn" id="dot3"></span>To $100</div>
         <div class="pill"><span class="dot warn" id="dot4"></span>Answer</div>
@@ -980,8 +1010,22 @@
       <div class="note">Coins → To tens → To $100 → Type answers → Check</div>
     </div>
   </div>
+
   <audio id="bgmAudio" loop preload="auto" src="./puzzle-game-bright-casual-video-game-music-249202.mp3"></audio>
 
+  <!-- ===== Finish Prompt Modal ===== -->
+  <div id="finishPrompt" aria-hidden="true">
+    <div class="fpCard" role="dialog" aria-modal="true">
+      <div class="fpTitle">
+        Do you want to buy other things or you want to practise buying more things or the same value?
+      </div>
+      <div class="fpBtns">
+        <button class="btn" id="fpOther" type="button">Choose other things</button>
+        <button class="btn secondary" id="fpSame" type="button">Practise same value</button>
+        <button class="btn ghost" id="fpCancel" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <audio id="sndCorrect" preload="auto" src="./correct.mp3?v=20260130c"></audio>
   <audio id="sndWrong" preload="auto" src="./wrong.mp3?v=20260130c"></audio>
@@ -1540,6 +1584,9 @@
           }
         }catch(e){}
 
+        // show the end prompt after success
+        setTimeout(showFinishPrompt, 350);
+
         setDots();
       }else{
         status4.textContent = "❌ Not yet. Check your answers.";
@@ -1615,8 +1662,59 @@
       confettiAnim = requestAnimationFrame(step);
     }
 
+    // ===== Finish Prompt (after correct final answer) =====
+    let __finishPromptShown = false;
+
+    function showFinishPrompt(){
+      if(__finishPromptShown) return;
+      __finishPromptShown = true;
+
+      const m = document.getElementById("finishPrompt");
+      if(!m) return;
+      m.style.display = "flex";
+      m.setAttribute("aria-hidden","false");
+    }
+
+    function hideFinishPrompt(){
+      const m = document.getElementById("finishPrompt");
+      if(!m) return;
+      m.style.display = "none";
+      m.setAttribute("aria-hidden","true");
+    }
+
+    // Buttons
+    (function(){
+      const other = document.getElementById("fpOther");
+      const same  = document.getElementById("fpSame");
+      const cancel= document.getElementById("fpCancel");
+      const modal = document.getElementById("finishPrompt");
+      if(!other || !same || !cancel || !modal) return;
+
+      other.addEventListener("click", ()=>{
+        window.location.href = "https://limkimsze-maker.github.io/P3_Saving_Quest_Making_Money_Up_To_100/";
+      });
+      same.addEventListener("click", ()=>{
+        // reload current level
+        window.location.reload();
+      });
+      cancel.addEventListener("click", hideFinishPrompt);
+
+      // click outside closes (acts like Cancel)
+      modal.addEventListener("click", (e)=>{
+        if(e.target === modal) hideFinishPrompt();
+      });
+
+      // ESC closes
+      window.addEventListener("keydown", (e)=>{
+        if(e.key === "Escape") hideFinishPrompt();
+      });
+    })();
+
     function newQuestion(){
       hideConfetti();
+      hideFinishPrompt();
+      __finishPromptShown = false;
+
       finished = false;
       step1OK = false;
       step2OK = false;
@@ -1891,132 +1989,6 @@
       }, { passive:true });
 
       applyPlayState(false);
-    })();
-
-    /* ====== Post-win prompt (Other things / Practise same value / Cancel) ====== */
-    (function(){
-      const OTHER_URL = "https://limkimsze-maker.github.io/P3_Saving_Quest_Making_Money_Up_To_100/";
-      let shownForThisWin = false;
-
-      function showChoicePopup(){
-        if(document.getElementById("ksNextChoiceOverlay")) return;
-
-        const overlay = document.createElement("div");
-        overlay.id = "ksNextChoiceOverlay";
-        overlay.style.cssText = [
-          "position:fixed",
-          "inset:0",
-          "background:rgba(0,0,0,.45)",
-          "display:flex",
-          "align-items:center",
-          "justify-content:center",
-          "z-index:99999",
-          "padding:16px"
-        ].join(";");
-
-        const card = document.createElement("div");
-        card.style.cssText = [
-          "width:min(520px, 100%)",
-          "background:#fff",
-          "border-radius:18px",
-          "border:1px solid rgba(15,23,42,.14)",
-          "box-shadow:0 22px 60px rgba(2,6,23,.25)",
-          "padding:14px"
-        ].join(";");
-
-        const title = document.createElement("div");
-        title.textContent = "Do you want to buy other things or you want to practise buying more things or the same value?";
-        title.style.cssText = [
-          "font-weight:1000",
-          "font-size:14px",
-          "line-height:1.35",
-          "color:#0f172a",
-          "margin-bottom:12px"
-        ].join(";");
-
-        const btnRow = document.createElement("div");
-        btnRow.style.cssText = [
-          "display:flex",
-          "gap:10px",
-          "flex-wrap:wrap",
-          "justify-content:flex-end"
-        ].join(";");
-
-        function mkBtn(text, kind){
-          const b = document.createElement("button");
-          b.type = "button";
-          b.textContent = text;
-          b.style.cssText = [
-            "border:none",
-            "cursor:pointer",
-            "padding:10px 12px",
-            "border-radius:14px",
-            "font-weight:1000",
-            "color:#fff",
-            (kind==="primary")
-              ? "background:linear-gradient(180deg, rgba(14,165,233,.95), rgba(14,165,233,.78)); box-shadow:0 10px 18px rgba(14,165,233,.22);"
-              : (kind==="dark")
-              ? "background:linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.78)); box-shadow:0 10px 18px rgba(2,6,23,.16);"
-              : "background:#fff; color:#0f172a; border:1px solid rgba(15,23,42,.16); box-shadow:none;"
-          ].join(" ");
-          return b;
-        }
-
-        const btnOther = mkBtn("Choose other things", "primary");
-        const btnSame  = mkBtn("Practise same value", "dark");
-        const btnCancel= mkBtn("Cancel", "ghost");
-
-        btnOther.addEventListener("click", ()=>{ window.location.href = OTHER_URL; });
-        btnSame.addEventListener("click", ()=>{ window.location.reload(); });
-        btnCancel.addEventListener("click", ()=>{ overlay.remove(); });
-
-        overlay.addEventListener("click", (e)=>{
-          if(e.target === overlay) overlay.remove();
-        });
-
-        function onKey(e){
-          if(e.key === "Escape"){
-            overlay.remove();
-            window.removeEventListener("keydown", onKey);
-          }
-        }
-        window.addEventListener("keydown", onKey);
-
-        btnRow.appendChild(btnCancel);
-        btnRow.appendChild(btnSame);
-        btnRow.appendChild(btnOther);
-
-        card.appendChild(title);
-        card.appendChild(btnRow);
-        overlay.appendChild(card);
-        document.body.appendChild(overlay);
-
-        setTimeout(()=>{ try{ btnOther.focus(); }catch(e){} }, 0);
-      }
-
-      try{
-        if(typeof checkFinal === "function"){
-          const _cf2 = checkFinal;
-          checkFinal = function(){
-            const wasFinished = finished;
-            _cf2();
-            if(!wasFinished && finished && !shownForThisWin){
-              shownForThisWin = true;
-              setTimeout(showChoicePopup, 50);
-            }
-          };
-        }
-      }catch(e){}
-
-      try{
-        if(typeof newQuestion === "function"){
-          const _nq2 = newQuestion;
-          newQuestion = function(){
-            shownForThisWin = false;
-            _nq2();
-          };
-        }
-      }catch(e){}
     })();
 
     newQuestion();
