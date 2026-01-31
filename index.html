@@ -969,16 +969,16 @@
               <div class="coinOct"><div style="text-align:center">$1<small>coin</small></div></div>
             </button>
             <button class="noteBtn" data-v="2" aria-label="Add 2 dollars">
-              <div class="noteCard"><div><div style="text-align:center">$2</div><small>mock note</small></div></div>
+              <div class="noteCard"><div><div style="text-align:center">$2</div><small>note</small></div></div>
             </button>
             <button class="noteBtn" data-v="5" aria-label="Add 5 dollars">
-              <div class="noteCard"><div><div style="text-align:center">$5</div><small>mock note</small></div></div>
+              <div class="noteCard"><div><div style="text-align:center">$5</div><small>note</small></div></div>
             </button>
             <button class="noteBtn" data-v="10" aria-label="Add 10 dollars">
-              <div class="noteCard ten"><div><div style="text-align:center">$10</div><small>mock note</small></div></div>
+              <div class="noteCard ten"><div><div style="text-align:center">$10</div><small>note</small></div></div>
             </button>
             <button class="noteBtn" data-v="50" aria-label="Add 50 dollars">
-              <div class="noteCard fifty"><div><div style="text-align:center">$50</div><small>mock note</small></div></div>
+              <div class="noteCard fifty"><div><div style="text-align:center">$50</div><small>note</small></div></div>
             </button>
           </div>
 
@@ -1156,7 +1156,7 @@
         bg = `radial-gradient(circle at 18% 30%, rgba(255,255,255,.9), rgba(255,255,255,0) 45%), linear-gradient(135deg, rgba(251,191,36,.18), rgba(139,92,246,.12))`;
       }
       if(bg) d.style.background = bg;
-      d.innerHTML = `<div style="text-align:center">${label}<small>mock note</small></div>`;
+      d.innerHTML = `<div style="text-align:center">${label}<small>note</small></div>`;
       wallet.appendChild(d);
     }
 
@@ -1279,7 +1279,7 @@
       if(v===10) inner.classList.add("ten");
       if(v===50) inner.classList.add("fifty");
 
-      inner.innerHTML = `<div><div style="text-align:center">$${v}</div><small>mock note</small></div>`;
+      inner.innerHTML = `<div><div style="text-align:center">$${v}</div><small>note</small></div>`;
       tok.appendChild(inner);
 
       const x = document.createElement("span");
